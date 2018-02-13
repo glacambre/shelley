@@ -1,0 +1,32 @@
+
+if [ "$NVIM_LISTEN_ADDRESS" = "" ] ; then
+    return
+fi
+
+alias man='nvimman'
+
+if [ "$(basename $SHELL)" != "zsh" ] ; then
+    return
+fi
+
+if [[ ! -v preexec_functions ]]; then
+    preexec_functions=()
+fi
+
+if [[ ! -v chpwd_functions ]]; then
+    chpwd_functions=()
+fi
+
+# automatically change working dir of parent buffer if using zsh within nvim
+function zsh_nvim_shelley_cd () {
+	emulate -L zsh
+	nvim_shelley_cd "$(pwd)"
+}
+(zsh_nvim_shelley_cd &) >/dev/null
+chpwd_functions+=zsh_nvim_shelley_cd
+
+function zsh_nvim_shelley_saveprompt() {
+# Note: if this breaks, try ${{(%)${(e)PS1}}}
+	nvim_shelley_saveprompt "$$" "${(%e)PS1}" "$1"
+}
+preexec_functions+=zsh_nvim_shelley_saveprompt
