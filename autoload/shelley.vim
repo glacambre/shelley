@@ -8,9 +8,23 @@ if exists("g:loaded_shelley")
 endif
 let g:loaded_shelley = 1
 
+if !exists("g:shelley_noman")
+  let g:shelley_noman = 0
+endif
+
+if !exists("g:shelley_nocd")
+  let g:shelley_nocd = 0
+endif
+
+if !exists("g:shelley_noprompt")
+  let g:shelley_noprompt = 0
+endif
+
 " Called when a new term is created
 function! shelley#OnTermOpen()
-  au BufEnter <buffer> if exists("b:shelley_path") | execute("cd " . b:shelley_path) | endif
+  au BufEnter <buffer> if exists("g:shelley_nocd") && g:shelley_nocd != 1 && exists("b:shelley_path")
+        \| execute("cd " . b:shelley_path)
+        \| endif
 endfunction
 
 " Saves the prompt position

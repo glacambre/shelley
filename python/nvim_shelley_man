@@ -15,6 +15,11 @@ if (not addr) or (len(sys.argv) != 2):
 nvim = attach("socket", path=addr)
 
 try:
+    if (nvim.vars['shelley_noman'] == 1):
+        raise Exception('g:shelley_noman is 1')
     nvim.command("Man " + sys.argv[1])
-finally:
+except:
     nvim.stop_loop()
+    os.execvp('man', sys.argv)
+
+nvim.stop_loop()

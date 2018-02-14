@@ -15,6 +15,8 @@ if not addr or len(sys.argv) != 4:
 nvim = attach("socket", path=addr)
 
 try:
-    nvim.command("call shelley#SavePrompt({}, {}, '{}', {})".format(sys.argv[1], 1, sys.argv[2], sys.argv[3].count('\n')))
+    nvim.command("""if !exists("g:shelley_noprompt") || g:shelley_noprompt != 1
+        call shelley#SavePrompt({}, {}, '{}', {})
+        endif\n""".format(sys.argv[1], 1, sys.argv[2], sys.argv[3].count('\n')))
 finally:
     nvim.stop_loop()

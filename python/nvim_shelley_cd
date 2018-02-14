@@ -17,7 +17,9 @@ nvim = attach("socket", path=addr)
 try:
     # This will break if the path contains a quote
     # Solution: Don't use paths with quotes! ;)
-    nvim.command("""let b:shelley_path = fnameescape('{}')\n\
-    exe "cd " . b:shelley_path""".format(sys.argv[1]))
+    nvim.command("""if !exists("g:shelley_nocd") || g:shelley_nocd != 1
+            let b:shelley_path = fnameescape('{}')
+            exe "cd " . b:shelley_path
+        fi\n""".format(sys.argv[1]))
 finally:
     nvim.stop_loop()
