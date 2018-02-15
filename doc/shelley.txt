@@ -33,24 +33,23 @@ you would a regular plugin. The last step is to add the following line to your
 <
 
 						*shelley-man*
-By default, shelley will create an alias to replace your 'man' command with the
-"nvim_shelley_man" script located in the 'python' directory of the plugin. If
-you would rather call your original 'man' binary, you can add the following
+By default, shelley will create an alias to replace your 'man' command with
+the "shelley" script located in the 'python' directory of the plugin.
+If you would rather call your original 'man' binary, you can add the following
 line to your .zshrc, just before the "source" line.
 >
 	export SHELLEY_NOMAN=1
 <
-In order to re-enable "nvim_shell_man", just set SHELLEY_NOMAN to any other
-value.
+In order to re-enable shelley, just set SHELLEY_NOMAN to 0
 If you prefer controlling this setting directly from Neovim, you can instead
 use the following line:
 >
-	let g:shelley_noman=1
+	let g:shelley["noman"]=1
 <
 Note that modifying the vimscript variable doesn't change the shell variable
 and that changing the shell variable doesn't change the vimscript variable. In
-order for "nvim_shelley_man" to be called, both the shell variable and the
-vimscript variable have to be set to a non-1 value.
+order for shelley features to be used, both the shell variable and the
+corresponding vimscript variable have to be set to 0.
 
 						*shelley-cd*
 Shelley will automatically update the path of the terminal buffer it sits in.
@@ -61,10 +60,10 @@ before shelley is sourced.
 <
 Another way is to add the following line to your init.vim:
 >
-	let g:shelley_nocd=1
+	let g:shelley["nocd"]=1
 <
-As with *shelley-man*, both the shell variable and the vimscript variable need
-to be set to a non-1 value for *shelley-cd* to be enabled.
+As with *shelley-man* both the shell variable and the vimscript variable need
+to be set to 0 for *shelley-cd* to be enabled.
 
 						*shelley-saveprompt*
 By default, shelley saves the location of your prompt in the terminal buffer.
@@ -77,13 +76,14 @@ any binding by default so you have to define them, for example like this:
 	vnoremap <expr> <Space>p shelley#PrevPrompt()
 	vnoremap <expr> <Space>n shelley#NextPrompt()
 <
-As with other setting, you can disable shelley's prompt-saving feature in your shell by adding the following line to your .zshrc:
+As with other settings, you can disable shelley's prompt-saving feature in your
+shell by adding the following line to your .zshrc:
 >
 	export SHELLEY_NOPROMPT=1
 <
 Or by adding the following line to your init.vim:
 >
-	let g:shelley_noprompt
+	let g:shelley["noprompt"]=1
 
 						*shelley-textobj*
 If the vim-textobj-user plugin is installed, shelley will automatically create
