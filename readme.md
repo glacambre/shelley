@@ -15,7 +15,7 @@ Shelley lets you:
   without the command
 
 Here is a brief demonstration of Shelley:
-[https://asciinema.org/a/163184](https://asciinema.org/a/163184)
+[![asciicast](https://asciinema.org/a/163184.png)](https://asciinema.org/a/163184)
 
 
 ## How to install
@@ -24,11 +24,11 @@ Shelley currently only works with zsh. It also needs
 [vim-textobj-user](https://github.com/kana/vim-textobj-user) to be installed if
 you want the command text objects to be enabled.
 
-### Get shelley
+### Get Shelley
 Use [your](https://github.com/tpope/vim-pathogen)
 [favorite](https://github.com/Shougo/dein.vim)
 [plugin](https://github.com/VundleVim/Vundle.vim)
-[manager](https://github.com/junegunn/vim-plug) to install shelley.
+[manager](https://github.com/junegunn/vim-plug) to install Shelley.
 
 Then, add the following line to your `~/.zshrc`:
 ```sh
@@ -64,12 +64,12 @@ vnoremap <expr> <Space>n shelley#NextPrompt()
 
 
 ## Bugs
-- I didn't test shelley with zsh's RPROMPT feature but I don't think it'd go
+- I didn't test Shelley with zsh's RPROMPT feature but I don't think it'd go
   well. Same thing for multi-line $PS1. If there are bugs they probably could
   easily be fixed though.
 
 - If your shell buffer gets longer than your scrollback value (see `:h
-  scrollback`), shelley will lose track of your prompts. This happens because
+  scrollback`), Shelley will lose track of your prompts. This happens because
   there currently is no non-hackish way to know how many lines are discarded by
   neovim. A partial workaround is to `set scrollback = -1`.
 
@@ -81,4 +81,4 @@ vnoremap <expr> <Space>n shelley#NextPrompt()
   terminal emulator for your shell
 
 
-Feel free to open an issue if you encounter an issue with Shelley :).
+Feel free to open an issue if you encounter a problem with Shelley :).
