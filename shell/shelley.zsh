@@ -11,38 +11,38 @@ if [[ ! -v precmd_functions ]]; then
     precmd_functions=()
 fi
 
-function zsh_nvim_shelley_man () {
+function shelley_man () {
     if [ "$SHELLEY_NOMAN" != "1" ] ; then
 	shelley --man $@
     else
 	command man $@
     fi
 }
-alias man='zsh_nvim_shelley_man'
+alias man='shelley_man'
 
 # automatically change working dir of parent buffer if using zsh within nvim
-function zsh_nvim_shelley_cd () {
+function shelley_cd () {
     emulate -L zsh
     if [[ "$SHELLEY_NOCD" != "1" ]] ; then
 	shelley --cd "$(pwd)"
     fi
 }
 if [[ "$SHELLEY_NOCD" != "1" ]] ; then
-    (zsh_nvim_shelley_cd &) >/dev/null
+    (shelley_cd &) >/dev/null
 fi
-chpwd_functions+=zsh_nvim_shelley_cd
+chpwd_functions+=shelley_cd
 
-function zsh_nvim_shelley_saveprompt() {
+function shelley_preexec() {
     # Note: if this breaks, try ${{(%)${(e)PS1}}}
     if [[ "$SHELLEY_NOPROMPT" != "1" ]] ; then
-	shelley --saveprompt "$$" "${(%e)PS1}" "$1"
+	shelley --preexec "$$" "${(%e)PS1}" "$1"
     fi
 }
-preexec_functions+=zsh_nvim_shelley_saveprompt
+preexec_functions+=shelley_preexec
 
-function zsh_shelley_precmd() {
+function shelley_precmd() {
     if [[ "$SHELLEY_NOPROMPT" != "1" ]] ; then
 	shelley --precmd "$$"
     fi
 }
-precmd_functions+=zsh_shelley_precmd
+precmd_functions+=shelley_precmd

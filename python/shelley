@@ -47,17 +47,17 @@ def precmd (addr, args):
 		pass
 	nvim.stop_loop()
 
-""" Calls host's saveprompt function """
-def saveprompt(addr, args):
+""" Calls host's preexec function """
+def preexec(addr, args):
 	if (not addr) or (len(args) != 3):
 		exit()
 	nvim = attach("socket", path=addr)
 	try:
 		nvim.command("""if !(exists("g:shelley_noprompt") && g:shelley_noprompt == 1)
 			try
-				call shelley#SavePrompt({}, {}, '{}', {})
+				call shelley#PreExec({}, '{}', {})
 			endtry
-			endif\n""".format(args[0], 1, args[1], args[2].count('\n')))
+			endif\n""".format(args[0], args[1], args[2].count('\n')))
 	except:
 		pass
 	nvim.stop_loop()
@@ -68,6 +68,6 @@ try:
 except:
     addr = False
 
-functions = {"--cd": cd, "--man": man, "--precmd": precmd, "--saveprompt": saveprompt}
+functions = {"--cd": cd, "--man": man, "--precmd": precmd, "--preexec": preexec}
 if (len(sys.argv) > 1) and (sys.argv[1] in functions):
 	functions[sys.argv[1]](addr, sys.argv[2:])

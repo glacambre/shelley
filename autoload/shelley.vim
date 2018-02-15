@@ -64,10 +64,9 @@ endfunction
 
 " Saves the prompt position
 " pid: The pid of the shell that should be saved
-" from_precmd: 1 if called from a precmd zsh hook, 0 otherwise
 " ps1: The PS1, can contain escape sequences
 " cmdheight: The height of the command line
-function! shelley#SavePrompt(pid, from_precmd, ps1, cmdheight) abort
+function! shelley#PreExec(pid, ps1, cmdheight) abort
     let bufnr = shelley#GetBuf(a:pid)
     if bufnr == -1
         return
