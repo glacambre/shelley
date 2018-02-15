@@ -20,6 +20,10 @@ if !exists("g:shelley_noprompt")
   let g:shelley_noprompt = 0
 endif
 
+if !exists("g:shelley_notextobj")
+    let g:shelley_notextobj = 0
+endif
+
 " Called when a new term is created
 function! shelley#OnTermOpen()
   au BufEnter <buffer> if exists("g:shelley_nocd") && g:shelley_nocd != 1 && exists("b:shelley_path")
