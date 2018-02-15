@@ -57,18 +57,19 @@ function! shelley#GetBuf(pid)
 endfunction
 
 function! shelley#PreCmd(pid)
-    let bufnr = shelley#GetBuf(a:pid)
-    if bufnr == - 1
+    let termbuf = shelley#GetBuf(a:pid)
+    if termbuf == - 1
       return
     endif
 
     let curbuf = bufnr("%")
-    exe "buffer " . bufnr
+    exe "buffer " . termbuf
 
-    let shelley["last_line"] = line("$")
     try
         $;?.
-        let shelley["last_line"] = line(".")
+        let b:shelley["last_line"] = line(".")
+    catch
+        let b:shelley["last_line"] = line("$")
     endtry
 
     exe "buffer " . curbuf
@@ -79,15 +80,14 @@ endfunction
 " ps1: The PS1, can contain escape sequences
 " cmdheight: The height of the command line
 function! shelley#PreExec(pid, ps1, cmdheight) abort
-    let bufnr = shelley#GetBuf(a:pid)
-    if bufnr == -1
+    let termbuf = shelley#GetBuf(a:pid)
+    if termbuf == -1
         return
     endif
 
-    " Save currently selected buffer
     let curbuf = bufnr("%")
     " Go to shell buffer
-    exe "buffer " . bufnr
+    exe "buffer " . termbuf
 
     let prompt_line = 1
     " Try to find the last line with text
@@ -184,7 +184,7 @@ function! shelley#SelectOutput(inner)
       let next_line = b:shelley["prompts"][next_prompt] - 1
     else
       let next_prompt = len(b:shelley["prompts"])
-      let next_line = shelley["last_line"]
+      let next_line = b:shelley["last_line"]
     endif
 
     let prev_prompt = next_prompt - 1
