@@ -3,27 +3,6 @@
 " Version:      0.1
 " Licence:      Public Domain
 
-if exists("g:loaded_shelley")
-  finish
-endif
-let g:loaded_shelley = 1
-
-if !exists("g:shelley_noman")
-  let g:shelley_noman = 0
-endif
-
-if !exists("g:shelley_nocd")
-  let g:shelley_nocd = 0
-endif
-
-if !exists("g:shelley_noprompt")
-  let g:shelley_noprompt = 0
-endif
-
-if !exists("g:shelley_notextobj")
-    let g:shelley_notextobj = 0
-endif
-
 function! shelley#InitBuffer()
     let b:shelley = {}
     let b:shelley["prompts"] = []
@@ -38,7 +17,7 @@ function! shelley#OnTermOpen()
     if !exists("b:shelley")
       call shelley#InitBuffer()
     endif
-    au BufEnter <buffer> if exists("g:shelley_nocd") && g:shelley_nocd != 1
+    au BufEnter <buffer> if !get(g:shelley, "nocd", 0)
           \| execute("cd " . b:shelley["path"])
           \| endif
 endfunction
@@ -214,7 +193,7 @@ function! shelley#SelectAOutput()
     return shelley#SelectOutput(0)
 endfunction
 
-if exists("*textobj#user#plugin()") && g:shelley_notextobj != 1
+if exists("*textobj#user#plugin()") && !get(g:shelley, "notextobj", 0)
     call textobj#user#plugin('output', {
         \ '-': {
         \       'select-a-function': 'shelley#SelectAOutput',

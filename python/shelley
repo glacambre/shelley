@@ -10,7 +10,7 @@ def cd (addr, args):
 	try:
 		# This will break if the path contains a quote
 		# Solution: Don't use paths with quotes! ;)
-		nvim.command("""if !(exists("g:shelley_nocd") && g:shelley_nocd == 1)
+		nvim.command("""if !get(g:shelley, "nocd", 0)
 				if (!exists("b:shelley"))
 					call shelley#InitBuffer()
 				endif
@@ -28,8 +28,8 @@ def man (addr, args):
 		os.execvp('man', ["man"] + args)
 	nvim = attach("socket", path=addr)
 	try:
-		if (nvim.vars['shelley_noman'] == 1):
-			raise Exception('g:shelley_noman is 1')
+		if (nvim.vars['shelley']['noman'] != 0):
+			raise Exception('g:shelley["noman"] is not 0')
 		nvim.command("Man " + args[0])
 	except:
 		nvim.stop_loop()
@@ -43,7 +43,7 @@ def precmd (addr, args):
 		exit()
 	nvim = attach("socket", path=addr)
 	try:
-		nvim.command("""if !(exists("g:shelley_noprompt") && g:shelley_noprompt == 1)
+		nvim.command("""if !get(g:shelley, "noprompt", 0)
 				call shelley#PreCmd({})
 			endif""".format(args[0]))
 	except:
@@ -57,7 +57,7 @@ def preexec(addr, args):
 		exit()
 	nvim = attach("socket", path=addr)
 	try:
-		nvim.command("""if !(exists("g:shelley_noprompt") && g:shelley_noprompt == 1)
+		nvim.command("""if !get(g:shelley, "noprompt", 0)
 				call shelley#PreExec({}, '{}', {})
 			endif\n""".format(args[0], args[1], args[2].count('\n')))
 	except:
