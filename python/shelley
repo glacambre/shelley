@@ -19,7 +19,8 @@ def cd (addr, args):
 			fi\n""".format(repr(args[0])))
 	except:
 		pass
-	nvim.stop_loop()
+	finally:
+		nvim.stop_loop()
 
 """ Calls host instance's :Man """
 def man (addr, args):
@@ -33,7 +34,8 @@ def man (addr, args):
 	except:
 		nvim.stop_loop()
 		os.execvp('man', ["man"] + args)
-	nvim.stop_loop()
+	finally:
+		nvim.stop_loop()
 
 """ Calls host's precmd function """
 def precmd (addr, args):
@@ -43,10 +45,11 @@ def precmd (addr, args):
 	try:
 		nvim.command("""if !(exists("g:shelley_noprompt") && g:shelley_noprompt == 1)
 				call shelley#PreCmd({})
-			endif\n""".format(args[0]))
+			endif""".format(args[0]))
 	except:
 		pass
-	nvim.stop_loop()
+	finally:
+		nvim.stop_loop()
 
 """ Calls host's preexec function """
 def preexec(addr, args):
@@ -59,7 +62,8 @@ def preexec(addr, args):
 			endif\n""".format(args[0], args[1], args[2].count('\n')))
 	except:
 		pass
-	nvim.stop_loop()
+	finally:
+		nvim.stop_loop()
 
 try:
     from neovim import attach
