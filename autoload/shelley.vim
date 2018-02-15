@@ -24,11 +24,23 @@ if !exists("g:shelley_notextobj")
     let g:shelley_notextobj = 0
 endif
 
+function! shelley#InitBuffer()
+    let b:shelley = {}
+    let b:shelley["prompts"] = []
+    let b:shelley["ps1"] = {}
+    let b:shelley["heights"] = {}
+    let b:shelley["path"] = ""
+    let b:shelley["last_line"] = line('$')
+endfunction
+
 " Called when a new term is created
 function! shelley#OnTermOpen()
-  au BufEnter <buffer> if exists("g:shelley_nocd") && g:shelley_nocd != 1 && exists("b:shelley_path")
-        \| execute("cd " . b:shelley_path)
-        \| endif
+    if !exists("b:shelley")
+      call shelley#InitBuffer()
+    endif
+    au BufEnter <buffer> if exists("g:shelley_nocd") && g:shelley_nocd != 1
+          \| execute("cd " . b:shelley["path"])
+          \| endif
 endfunction
 
 function! shelley#GetBuf(pid)
@@ -53,10 +65,10 @@ function! shelley#PreCmd(pid)
     let curbuf = bufnr("%")
     exe "buffer " . bufnr
 
-    let b:shelley_lastline = line("$")
+    let shelley["last_line"] = line("$")
     try
         $;?.
-        let b:shelley_lastline = line(".")
+        let shelley["last_line"] = line(".")
     endtry
 
     exe "buffer " . curbuf
@@ -88,16 +100,9 @@ function! shelley#PreExec(pid, ps1, cmdheight) abort
     endtry
     let prompt_line = (prompt_line - a:cmdheight)
 
-    " Save current cursor line and ps1
-    if !exists('b:shelley_prompts') || !exists('b:shelley_ps1') || !exists('b:shelley_heights')
-        let b:shelley_prompts = []
-        let b:shelley_ps1 = {}
-        let b:shelley_heights = {}
-    endif
-
-    let b:shelley_prompts += [prompt_line]
-    let b:shelley_ps1["" . prompt_line] = len(substitute(a:ps1, '\[[^m]\+m', '', 'g'))
-    let b:shelley_heights["" . prompt_line] = a:cmdheight
+    let b:shelley["prompts"] += [prompt_line]
+    let b:shelley["ps1"]["" . prompt_line] = len(substitute(a:ps1, '\[[^m]\+m', '', 'g'))
+    let b:shelley["heights"]["" . prompt_line] = a:cmdheight
 
     " Go back to the buffer we were on before calling the function
     exe "buffer " . curbuf
@@ -129,18 +134,18 @@ endfunction
 " Goes to the next/previous term prompt
 " prev: 1 if we want the previous prompt, 0 if we want the next
 function! shelley#TermPrompt(prev) abort range
-    if !exists('b:shelley_prompts') || !exists('b:shelley_ps1')
-        return
+    if !exists('b:shelley')
+        call shelley#InitBuffer()
     endif
 
     let curline = line('.')
-    let i = shelley#GetPromptIndex(b:shelley_prompts, curline, a:prev)
+    let i = shelley#GetPromptIndex(b:shelley["prompts"], curline, a:prev)
 
     let action = ""
-    if (i >= 0 && i < len(b:shelley_prompts)) 
+    if (i >= 0 && i < len(b:shelley["prompts"]))
         " Compute how many lines the cursor should be moved {horizonta,vertica}lly
-        let target_line = b:shelley_prompts[i]
-        let target_col = b:shelley_ps1["" + target_line] + 1
+        let target_line = b:shelley["prompts"][i]
+        let target_col = b:shelley["ps1"]["" + target_line] + 1
 
         let lcount = (target_line - curline)
         if lcount > 0
@@ -174,12 +179,12 @@ endfunction
 function! shelley#SelectOutput(inner)
     let [bufnum, cur_line, cur_col, off] = getpos('.')
 
-    let next_prompt = shelley#GetPromptIndex(b:shelley_prompts, cur_line, 0)
+    let next_prompt = shelley#GetPromptIndex(b:shelley["prompts"], cur_line, 0)
     if next_prompt >= 0
-      let next_line = b:shelley_prompts[next_prompt] - 1
+      let next_line = b:shelley["prompts"][next_prompt] - 1
     else
-      let next_prompt = len(b:shelley_prompts)
-      let next_line = exists("b:shelley_lastline") ? b:shelley_lastline : line('$')
+      let next_prompt = len(b:shelley["prompts"])
+      let next_line = shelley["last_line"]
     endif
 
     let prev_prompt = next_prompt - 1
@@ -188,9 +193,9 @@ function! shelley#SelectOutput(inner)
     endif
 
     " Get the line number for the prev_prompt-th prompt
-    let prev_line = b:shelley_prompts[prev_prompt]
+    let prev_line = b:shelley["prompts"][prev_prompt]
     if a:inner == 1
-        let prev_line += b:shelley_heights["" + prev_line]
+        let prev_line += b:shelley["heights"]["" + prev_line]
         let prev_line += 1
     endif
 

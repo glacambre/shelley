@@ -11,8 +11,11 @@ def cd (addr, args):
 		# This will break if the path contains a quote
 		# Solution: Don't use paths with quotes! ;)
 		nvim.command("""if !(exists("g:shelley_nocd") && g:shelley_nocd == 1)
-			let b:shelley_path = fnameescape('{}')
-			exe "cd " . b:shelley_path
+				if (!exists("b:shelley"))
+					call shelley#InitBuffer()
+				endif
+				let b:shelley["path"] = fnameescape('{}')
+				exe "cd " . b:shelley["path"]
 			fi\n""".format(args[0]))
 	except:
 		pass
@@ -39,9 +42,7 @@ def precmd (addr, args):
 	nvim = attach("socket", path=addr)
 	try:
 		nvim.command("""if !(exists("g:shelley_noprompt") && g:shelley_noprompt == 1)
-			try
 				call shelley#PreCmd({})
-			entry
 			endif\n""".format(args[0]))
 	except:
 		pass
@@ -54,9 +55,7 @@ def preexec(addr, args):
 	nvim = attach("socket", path=addr)
 	try:
 		nvim.command("""if !(exists("g:shelley_noprompt") && g:shelley_noprompt == 1)
-			try
 				call shelley#PreExec({}, '{}', {})
-			endtry
 			endif\n""".format(args[0], args[1], args[2].count('\n')))
 	except:
 		pass
