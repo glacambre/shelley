@@ -13,7 +13,7 @@ fi
 
 function zsh_nvim_shelley_man () {
     if [ "$SHELLEY_NOMAN" != "1" ] ; then
-	nvim_shelley_man $@
+	shelley --man $@
     else
 	command man $@
     fi
@@ -24,7 +24,7 @@ alias man='zsh_nvim_shelley_man'
 function zsh_nvim_shelley_cd () {
     emulate -L zsh
     if [[ "$SHELLEY_NOCD" != "1" ]] ; then
-	nvim_shelley_cd "$(pwd)"
+	shelley --cd "$(pwd)"
     fi
 }
 if [[ "$SHELLEY_NOCD" != "1" ]] ; then
@@ -35,14 +35,14 @@ chpwd_functions+=zsh_nvim_shelley_cd
 function zsh_nvim_shelley_saveprompt() {
     # Note: if this breaks, try ${{(%)${(e)PS1}}}
     if [[ "$SHELLEY_NOPROMPT" != "1" ]] ; then
-	nvim_shelley_saveprompt "$$" "${(%e)PS1}" "$1"
+	shelley --saveprompt "$$" "${(%e)PS1}" "$1"
     fi
 }
 preexec_functions+=zsh_nvim_shelley_saveprompt
 
 function zsh_shelley_precmd() {
     if [[ "$SHELLEY_NOPROMPT" != "1" ]] ; then
-	nvim_shelley_precmd "$$"
+	shelley --precmd "$$"
     fi
 }
 precmd_functions+=zsh_shelley_precmd
