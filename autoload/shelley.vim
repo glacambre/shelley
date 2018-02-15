@@ -31,22 +31,45 @@ function! shelley#OnTermOpen()
         \| endif
 endfunction
 
-" Saves the prompt position
-" pid: The pid of the shell that should be saved
-" from_precmd: 1 if called from a precmd zsh hook, 0 otherwise
-" ps1: The PS1, can contain escape sequences
-" cmdheight: The height of the command line
-function! shelley#SavePrompt(pid, from_precmd, ps1, cmdheight) abort
+function! shelley#GetBuf(pid)
     let allbufs = getbufinfo()
     " Find the buffer that belongs to the shell that has pid a:pid
-    let bufnr = 0
+    let bufnr = -1
     for i in range(len(allbufs))
         if get(allbufs[i]["variables"], "terminal_job_pid", 0) == a:pid
             let bufnr = allbufs[i]["bufnr"]
             break
         endif
     endfor
-    if bufnr == 0
+    return bufnr
+endfunction
+
+function! shelley#PreCmd(pid)
+    let bufnr = shelley#GetBuf(a:pid)
+    if bufnr == - 1
+      return
+    endif
+
+    let curbuf = bufnr("%")
+    exe "buffer " . bufnr
+
+    let b:shelley_lastline = line("$")
+    try
+        $;?.
+        let b:shelley_lastline = line(".")
+    endtry
+
+    exe "buffer " . curbuf
+endfunction
+
+" Saves the prompt position
+" pid: The pid of the shell that should be saved
+" from_precmd: 1 if called from a precmd zsh hook, 0 otherwise
+" ps1: The PS1, can contain escape sequences
+" cmdheight: The height of the command line
+function! shelley#SavePrompt(pid, from_precmd, ps1, cmdheight) abort
+    let bufnr = shelley#GetBuf(a:pid)
+    if bufnr == -1
         return
     endif
 
@@ -151,23 +174,27 @@ endfunction
 " If inner is 0, the region is the output of a command + the command
 function! shelley#SelectOutput(inner)
     let [bufnum, cur_line, cur_col, off] = getpos('.')
-    let prev_prompt = shelley#GetPromptIndex(b:shelley_prompts, cur_line, 1)
+
     let next_prompt = shelley#GetPromptIndex(b:shelley_prompts, cur_line, 0)
-    if prev_prompt < 0 || next_prompt < 0
-        return 0
-    endif
-    " This happens when the cursor is already sitting on a prompt line
-    if next_prompt != prev_prompt + 1
-        prev_prompt = next_prompt - 1
+    if next_prompt >= 0
+      let next_line = b:shelley_prompts[next_prompt] - 1
+    else
+      let next_prompt = len(b:shelley_prompts)
+      let next_line = exists("b:shelley_lastline") ? b:shelley_lastline : line('$')
     endif
 
+    let prev_prompt = next_prompt - 1
+    if prev_prompt < 0
+        return 0
+    endif
+
+    " Get the line number for the prev_prompt-th prompt
     let prev_line = b:shelley_prompts[prev_prompt]
     if a:inner == 1
         let prev_line += b:shelley_heights["" + prev_line]
         let prev_line += 1
     endif
 
-    let next_line = b:shelley_prompts[next_prompt] - 1
 
     let rstart = [bufnum,  prev_line, 1, 0]
     let rend = [bufnum, next_line, strwidth(getline(next_line)) , 0]

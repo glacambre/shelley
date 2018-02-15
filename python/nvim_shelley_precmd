@@ -1,0 +1,26 @@
+#!/usr/bin/env python3
+# Create a mark in host buffer
+import os
+import sys
+
+try:
+    from neovim import attach
+    addr = os.environ.get("NVIM_LISTEN_ADDRESS", None)
+except:
+    addr = False
+
+if not addr or len(sys.argv) != 2:
+    exit()
+
+nvim = attach("socket", path=addr)
+
+try:
+    nvim.command("""if !(exists("g:shelley_noprompt") && g:shelley_noprompt == 1)
+            try
+                call shelley#PreCmd({})
+            entry
+        endif\n""".format(sys.argv[1]))
+except:
+    pass
+finally:
+    nvim.stop_loop()

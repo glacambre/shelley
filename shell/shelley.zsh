@@ -7,6 +7,10 @@ if [[ ! -v chpwd_functions ]]; then
     chpwd_functions=()
 fi
 
+if [[ ! -v precmd_functions ]]; then
+    precmd_functions=()
+fi
+
 function zsh_nvim_shelley_man () {
     if [ "$SHELLEY_NOMAN" != "1" ] ; then
 	nvim_shelley_man $@
@@ -35,3 +39,10 @@ function zsh_nvim_shelley_saveprompt() {
     fi
 }
 preexec_functions+=zsh_nvim_shelley_saveprompt
+
+function zsh_shelley_precmd() {
+    if [[ "$SHELLEY_NOPROMPT" != "1" ]] ; then
+	nvim_shelley_precmd "$$"
+    fi
+}
+precmd_functions+=zsh_shelley_precmd
