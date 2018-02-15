@@ -14,9 +14,9 @@ def cd (addr, args):
 				if (!exists("b:shelley"))
 					call shelley#InitBuffer()
 				endif
-				let b:shelley["path"] = fnameescape('{}')
+				let b:shelley["path"] = fnameescape({})
 				exe "cd " . b:shelley["path"]
-			fi\n""".format(args[0]))
+			fi\n""".format(repr(args[0])))
 	except:
 		pass
 	nvim.stop_loop()
