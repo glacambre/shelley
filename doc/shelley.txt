@@ -7,6 +7,7 @@ Setup			|shelley-setup|
 shelley-man		|shelley-man|
 shelley-cd		|shelley-cd|
 shelley-promptsave	|shelley-promptsave|
+shelley-textobj		|shelley-textobj|
 
 ==============================================================================
 INTRODUCTION					*shelley-introduction*
@@ -83,7 +84,23 @@ As with other setting, you can disable shelley's prompt-saving feature in your s
 Or by adding the following line to your init.vim:
 >
 	let g:shelley_noprompt
+
+						*shelley-textobj*
+If the vim-textobj-user plugin is installed, shelley will automatically create
+a 'command' text object and bind it to 'o'. You will then be able to use the
+regular text object functions to interact with the output of your shell.
+Here's an example.
+>
+	PS1>grep SHELLEY shelley.txt
+	source PATH/TO/SHELLEY/sh/shelley.sh
+	export SHELLEY_NOMAN=1
+	In order to re-enable "nvim_shell_man", just set SHELLEY_NOMAN to any other
+	export SHELLEY_NOCD=1
+	export SHELLEY_NOPROMPT=1
+	PS1>
 <
+You can select the output of grep by typing "vio". If you wanted to select
+both the command and its output, you can use "vao" instead.
 
 ==============================================================================
 vim:tw=78:ts=8:ft=help:norl:fen:fdl=0:fdm=marker:noet:
