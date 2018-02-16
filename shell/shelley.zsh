@@ -1,4 +1,6 @@
 
+SHELLEY_BIN="$(dirname $0)/../python/shelley"
+
 if [[ ! -v preexec_functions ]]; then
     preexec_functions=()
 fi
@@ -13,7 +15,7 @@ fi
 
 function shelley_man () {
     if [[ "$SHELLEY_NOMAN" = "" || "$SHELLEY_NOMAN" = "0" ]] ; then
-	shelley --man $@
+	"$SHELLEY_BIN" --man $@
     else
 	command man $@
     fi
@@ -24,7 +26,7 @@ alias man='shelley_man'
 function shelley_cd () {
     emulate -L zsh
     if [[ "$SHELLEY_NOCD" = "" || "$SHELLEY_NOCD" = "0" ]] ; then
-	shelley --cd "$(pwd)"
+	"$SHELLEY_BIN" --cd "$(pwd)"
     fi
 }
 if [[ "$SHELLEY_NOCD" = "" || "$SHELLEY_NOCD" = "0" ]] ; then
@@ -35,14 +37,14 @@ chpwd_functions+=shelley_cd
 function shelley_preexec() {
     # Note: if this breaks, try ${{(%)${(e)PS1}}}
     if [[ "$SHELLEY_NOPROMPT" = "" || "$SHELLEY_NOPROMPT" = "0" ]] ; then
-	shelley --preexec "$$" "${(%e)PS1}" "$1"
+	"$SHELLEY_BIN" --preexec "$$" "${(%e)PS1}" "$1"
     fi
 }
 preexec_functions+=shelley_preexec
 
 function shelley_precmd() {
     if [[ "$SHELLEY_NOPROMPT" = "" || "$SHELLEY_NOPROMPT" = "0" ]] ; then
-	shelley --precmd "$$"
+	"$SHELLEY_BIN" --precmd "$$"
     fi
 }
 precmd_functions+=shelley_precmd
