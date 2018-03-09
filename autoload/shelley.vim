@@ -44,6 +44,10 @@ function! shelley#PreCmd(pid)
     let curbuf = bufnr("%")
     exe "buffer " . termbuf
 
+    if !exists("b:shelley")
+        call shelley#InitBuffer()
+    endif
+
     try
         $;?.
         let b:shelley["last_line"] = line(".")
@@ -67,6 +71,10 @@ function! shelley#PreExec(pid, ps1, cmdheight) abort
     let curbuf = bufnr("%")
     " Go to shell buffer
     exe "buffer " . termbuf
+
+    if !exists("b:shelley")
+        call shelley#InitBuffer()
+    endif
 
     let prompt_line = 1
     " Try to find the last line with text
@@ -113,8 +121,8 @@ endfunction
 " Goes to the next/previous term prompt
 " prev: 1 if we want the previous prompt, 0 if we want the next
 function! shelley#TermPrompt(prev) abort range
-    if !exists('b:shelley')
-        call shelley#InitBuffer()
+    if &buftype != "terminal" || !exists('b:shelley')
+        return
     endif
 
     let curline = line('.')
@@ -156,6 +164,9 @@ endfunction
 " If inner is 1, the region corresponds to the output of a command
 " If inner is 0, the region is the output of a command + the command
 function! shelley#SelectOutput(inner)
+    if !exists('b:shelley')
+        return
+    endif
     let [bufnum, cur_line, cur_col, off] = getpos('.')
 
     let next_prompt = shelley#GetPromptIndex(b:shelley["prompts"], cur_line, 0)
