@@ -132,7 +132,7 @@ function! shelley#TermPrompt(prev) abort range
     if (i >= 0 && i < len(b:shelley["prompts"]))
         " Compute how many lines the cursor should be moved {horizonta,vertica}lly
         let target_line = b:shelley["prompts"][i]
-        let target_col = b:shelley["ps1"]["" + target_line] + 1
+        let target_col = b:shelley["ps1"]["" + target_line]
 
         let lcount = (target_line - curline)
         if lcount > 0
@@ -141,13 +141,9 @@ function! shelley#TermPrompt(prev) abort range
             let action = (-lcount) . "k"
         endif
 
-        let ccount = (target_col - col('.'))
-        if ccount > 0
-            let action .= ccount . "l"
-        elseif ccount < 0
-            let action .= (-ccount) . "h"
-        endif
+        let action .= "0" . target_col . "l"
     endif
+    echo action
 
     return action
 endfunction
