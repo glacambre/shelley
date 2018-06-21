@@ -1,16 +1,18 @@
 
 SHELLEY_BIN="$(dirname $0)/../python/shelley"
 
-if [[ ! -v preexec_functions ]]; then
-    preexec_functions=()
-fi
+if [[ "$(echo $ZSH_VERSION | cut -d. -f1,2)" -gt 5.2 ]]; then
+    if [[ ! -v preexec_functions ]]; then
+	preexec_functions=()
+    fi
 
-if [[ ! -v chpwd_functions ]]; then
-    chpwd_functions=()
-fi
+    if [[ ! -v chpwd_functions ]]; then
+	chpwd_functions=()
+    fi
 
-if [[ ! -v precmd_functions ]]; then
-    precmd_functions=()
+    if [[ ! -v precmd_functions ]]; then
+	precmd_functions=()
+    fi
 fi
 
 function shelley_man () {
