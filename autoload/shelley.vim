@@ -3,26 +3,39 @@
 " Version:      0.1
 " Licence:      Public Domain
 
-function! shelley#InitBuffer()
-    let b:shelley = {}
-    let b:shelley["prompts"] = []
-    let b:shelley["ps1"] = {}
-    let b:shelley["heights"] = {}
-    let b:shelley["path"] = ""
-    let b:shelley["last_line"] = line('$')
+function! shelley#GetLastLine(termbuf) abort
+    let lines = nvim_buf_get_lines(a:termbuf, 0, -1, 0)
+    let i = 0
+    for i in reverse(range(0, len(lines) - 1))
+        if lines[i] != ''
+            break
+        endif
+    endfor
+    return i + 1
+endfunction
+
+function! shelley#InitBuffer(termbuf) abort
+    let l:shelley = {}
+    let l:shelley["prompts"] = []
+    let l:shelley["ps1"] = {}
+    let l:shelley["heights"] = {}
+    let l:shelley["path"] = ""
+    let l:shelley["last_line"] = shelley#GetLastLine(a:termbuf)
+    call nvim_buf_set_var(a:termbuf, 'shelley', l:shelley)
+    return l:shelley
 endfunction
 
 " Called when a new term is created
-function! shelley#OnTermOpen()
+function! shelley#OnTermOpen() abort
     if !exists("b:shelley")
-      call shelley#InitBuffer()
+      call shelley#InitBuffer(str2nr(expand('<abuf>')))
     endif
     au BufEnter <buffer> if !get(g:shelley, "nocd", 0)
           \| execute("cd " . b:shelley["path"])
           \| endif
 endfunction
 
-function! shelley#GetBuf(pid)
+function! shelley#GetBuf(pid) abort
     let allbufs = getbufinfo()
     " Find the buffer that belongs to the shell that has pid a:pid
     let bufnr = -1
@@ -35,27 +48,20 @@ function! shelley#GetBuf(pid)
     return bufnr
 endfunction
 
-function! shelley#PreCmd(pid)
-    let termbuf = shelley#GetBuf(a:pid)
-    if termbuf == - 1
+function! shelley#PreCmd(pid) abort
+    let l:termbuf = shelley#GetBuf(a:pid)
+    if l:termbuf == - 1
       return
     endif
 
-    let curbuf = bufnr("%")
-    exe "buffer " . termbuf
-
-    if !exists("b:shelley")
-        call shelley#InitBuffer()
-    endif
-
     try
-        $;?.
-        let b:shelley["last_line"] = line(".")
+        let l:shelley = nvim_buf_get_var(l:termbuf, "shelley")
     catch
-        let b:shelley["last_line"] = line("$")
+        let l:shelley = shelley#InitBuffer(l:termbuf)
     endtry
 
-    exe "buffer " . curbuf
+    let l:shelley["last_line"] = shelley#GetLastLine(l:termbuf)
+    call nvim_buf_set_var(l:termbuf, 'shelley', l:shelley)
 endfunction
 
 " Saves the prompt position
@@ -63,36 +69,24 @@ endfunction
 " ps1: The PS1, can contain escape sequences
 " cmdheight: The height of the command line
 function! shelley#PreExec(pid, ps1, cmdheight) abort
-    let termbuf = shelley#GetBuf(a:pid)
-    if termbuf == -1
+    let l:termbuf = shelley#GetBuf(a:pid)
+    if l:termbuf == -1
         return
     endif
 
-    let curbuf = bufnr("%")
-    " Go to shell buffer
-    exe "buffer " . termbuf
-
-    if !exists("b:shelley")
-        call shelley#InitBuffer()
-    endif
-
-    let prompt_line = 1
-    " Try to find the last line with text
     try
-        $;?.
-        let prompt_line = line('.')
+        let l:shelley = nvim_buf_get_var(l:termbuf, "shelley")
     catch
-        " Fails if the buffer is empty
-        let prompt_line = 1
+        let l:shelley = shelley#InitBuffer(l:termbuf)
     endtry
+
+    let prompt_line = shelley#GetLastLine(l:termbuf)
     let prompt_line = (prompt_line - a:cmdheight)
 
-    let b:shelley["prompts"] += [prompt_line]
-    let b:shelley["ps1"]["" . prompt_line] = len(substitute(a:ps1, '\[[^m]\+m', '', 'g'))
-    let b:shelley["heights"]["" . prompt_line] = a:cmdheight
-
-    " Go back to the buffer we were on before calling the function
-    exe "buffer " . curbuf
+    let l:shelley["prompts"] += [prompt_line]
+    let l:shelley["ps1"]["" . prompt_line] = len(substitute(a:ps1, '\[[^m]\+m', '', 'g'))
+    let l:shelley["heights"]["" . prompt_line] = a:cmdheight
+    call nvim_buf_set_var(l:termbuf, 'shelley', l:shelley)
 endfunction
 
 " Returns the line number for the next/previous prompt
@@ -101,7 +95,7 @@ endfunction
 " a:prev is 1 if the function should return the previous prompt, 0 if it
 "        should return the next
 " Returns -1 if there is no previous/next prompt
-function! shelley#GetPromptIndex(prompts, curline, prev)
+function! shelley#GetPromptIndex(prompts, curline, prev) abort
     let i = 0
     while i < len(a:prompts) && a:prompts[i] < a:curline
         let i += 1
@@ -148,18 +142,18 @@ function! shelley#TermPrompt(prev) abort range
     return action
 endfunction
 
-function! shelley#NextPrompt()
+function! shelley#NextPrompt() abort
     return shelley#TermPrompt(0)
 endfunction
 
-function! shelley#PrevPrompt()
+function! shelley#PrevPrompt() abort
     return shelley#TermPrompt(1)
 endfunction
 
 " Returns a text object matching the spec required by vim-textobj-user
 " If inner is 1, the region corresponds to the output of a command
 " If inner is 0, the region is the output of a command + the command
-function! shelley#SelectOutput(inner)
+function! shelley#SelectOutput(inner) abort
     if !exists('b:shelley')
         return
     endif
@@ -192,11 +186,11 @@ function! shelley#SelectOutput(inner)
     return ['v', rstart, rend]
 endfunction
 
-function! shelley#SelectIOutput()
+function! shelley#SelectIOutput() abort
     return shelley#SelectOutput(1)
 endfunction
 
-function! shelley#SelectAOutput()
+function! shelley#SelectAOutput() abort
     return shelley#SelectOutput(0)
 endfunction
 
