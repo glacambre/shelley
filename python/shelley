@@ -2,75 +2,25 @@
 import os
 import sys
 
-""" Cd nvim host instance """
-def cd (addr, args):
-	if (not addr) or (len(args) != 1):
-		sys.exit(1)
-	nvim = attach("socket", path=addr)
-	try:
-		# This will break if the path contains a quote
-		# Solution: Don't use paths with quotes! ;)
-		nvim.command("""if !get(g:shelley, "nocd", 0)
-				if (!exists("b:shelley"))
-					call shelley#InitBuffer()
-				endif
-				let b:shelley["path"] = fnameescape({})
-				exe "cd " . b:shelley["path"]
-			fi\n""".format(repr(args[0])))
-	except:
-		pass
-	finally:
-		nvim.stop_loop()
-
-""" Calls host instance's :Man """
-def man (addr, args):
-	if (not addr) or (len(args) != 1):
-		os.execvp('man', ["man"] + args)
-	nvim = attach("socket", path=addr)
-	try:
-		if (nvim.vars['shelley']['noman'] != 0):
-			raise Exception('g:shelley["noman"] is not 0')
-		nvim.command("Man " + args[0])
-	except:
-		nvim.stop_loop()
-		os.execvp('man', ["man"] + args)
-	finally:
-		nvim.stop_loop()
-
 """ Calls host's precmd function """
 def precmd (addr, args):
-	if (not addr) or (len(args) != 1):
-		exit()
-	nvim = attach("socket", path=addr)
-	try:
-		nvim.command("""if !get(g:shelley, "noprompt", 0)
-				call shelley#PreCmd({})
-			endif""".format(args[0]))
-	except:
-		pass
-	finally:
-		nvim.stop_loop()
+    nvim.command("""call shelley#PreCmd({})""".format(args[0]))
 
 """ Calls host's preexec function """
 def preexec(addr, args):
-	if (not addr) or (len(args) != 3):
-		exit()
-	nvim = attach("socket", path=addr)
-	try:
-		nvim.command("""if !get(g:shelley, "noprompt", 0)
-				call shelley#PreExec({}, '{}', {})
-			endif\n""".format(args[0], args[1], args[2].count('\n')))
-	except:
-		pass
-	finally:
-		nvim.stop_loop()
+    nvim.command("""call shelley#PreExec({}, '{}', {})""".format(args[0], args[1], args[2].count('\n')))
 
 try:
     from neovim import attach
     addr = os.environ.get("NVIM_LISTEN_ADDRESS", None)
+    nvim = attach("socket", path=addr)
+    try:
+        functions = {"--precmd": precmd, "--preexec": preexec}
+        if (len(sys.argv) > 1) and (sys.argv[1] in functions):
+            functions[sys.argv[1]](addr, sys.argv[2:])
+    except:
+        pass
+    finally:
+        nvim.stop_loop()
 except:
-    addr = False
-
-functions = {"--cd": cd, "--man": man, "--precmd": precmd, "--preexec": preexec}
-if (len(sys.argv) > 1) and (sys.argv[1] in functions):
-	functions[sys.argv[1]](addr, sys.argv[2:])
+    pass

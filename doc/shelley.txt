@@ -4,21 +4,14 @@ Version 0.1
 
 Introduction		|shelley-introduction|
 Setup			|shelley-setup|
-shelley-man		|shelley-man|
-shelley-cd		|shelley-cd|
 shelley-promptsave	|shelley-promptsave|
 shelley-textobj		|shelley-textobj|
 
 ==============================================================================
 INTRODUCTION					*shelley-introduction*
 
-Shelley is a Neovim plugin that further integrates your shell into neovim. It
-currently provides three features:
-	- Use the host's instance :Man command when using the 'man' binary
-	- Automatically :cd the host instance to the directory your shell cd'd
-	  into
-	- Provide functions to navigate between shell prompts in the host's
-	  terminal buffer
+Shelley provides functions to navigate between shell prompts in the host's terminal
+buffer and text-objects to select commands and their output.
 
 Shelley currently only works with zsh.
 
@@ -31,75 +24,29 @@ you would a regular plugin. The last step is to add the following line to your
 >
 	source PATH/TO/SHELLEY/sh/shelley.sh
 <
-
-						*shelley-man*
-By default, shelley will create an alias to replace your 'man' command with
-the "shelley" script located in the 'python' directory of the plugin.
-If you would rather call your original 'man' binary, you can add the following
-line to your .zshrc, just before the "source" line.
->
-	export SHELLEY_NOMAN=1
-<
-In order to re-enable shelley, just set SHELLEY_NOMAN to 0
-If you prefer controlling this setting directly from Neovim, you can instead
-use the following line:
->
-	let g:shelley["noman"]=1
-<
-Note that modifying the vimscript variable doesn't change the shell variable
-and that changing the shell variable doesn't change the vimscript variable. In
-order for shelley features to be used, both the shell variable and the
-corresponding vimscript variable have to be set to 0.
-
-						*shelley-cd*
-Shelley will automatically update the path of the terminal buffer it sits in.
-If you don't want that to happen, you can add the following line to your .zshrc
-before shelley is sourced.
->
-	export SHELLEY_NOCD=1
-<
-Another way is to add the following line to your init.vim:
->
-	let g:shelley["nocd"]=1
-<
-As with *shelley-man* both the shell variable and the vimscript variable need
-to be set to 0 for *shelley-cd* to be enabled.
-
 						*shelley-saveprompt*
-By default, shelley saves the location of your prompt in the terminal buffer.
-It then provides two functions, 'shelley#PrevPrompt()' and
-'shelley#NextPrompt()' to navigate between the prompts. Shelley doesn't provide
-any binding by default so you have to define them, for example like this:
+Shelley saves the location of your prompt in the terminal buffer. It then
+provides two functions, 'shelley#PrevPrompt()' and 'shelley#NextPrompt()' to
+navigate between the prompts. Shelley doesn't provide any binding by default
+so you have to define them, for example like this:
 >
 	nnoremap <expr> <Space>p shelley#PrevPrompt()
 	nnoremap <expr> <Space>n shelley#NextPrompt()
 	vnoremap <expr> <Space>p shelley#PrevPrompt()
 	vnoremap <expr> <Space>n shelley#NextPrompt()
 <
-As with other settings, you can disable shelley's prompt-saving feature in your
-shell by adding the following line to your .zshrc:
->
-	export SHELLEY_NOPROMPT=1
-<
-Or by adding the following line to your init.vim:
->
-	let g:shelley["noprompt"]=1
-
 						*shelley-textobj*
 If the vim-textobj-user plugin is installed, shelley will automatically create
 a 'command' text object and bind it to 'o'. You will then be able to use the
 regular text object functions to interact with the output of your shell.
 Here's an example.
 >
-	PS1>grep SHELLEY shelley.txt
-	source PATH/TO/SHELLEY/sh/shelley.sh
-	export SHELLEY_NOMAN=1
-	In order to re-enable "nvim_shell_man", just set SHELLEY_NOMAN to any other
-	export SHELLEY_NOCD=1
-	export SHELLEY_NOPROMPT=1
+	PS1>cat <<EOF
+	This is a test
+	EOF
 	PS1>
 <
-You can select the output of grep by typing "vio". If you wanted to select
+You can select the output of cat by typing "vio". If you wanted to select
 both the command and its output, you can use "vao" instead.
 
 ==============================================================================

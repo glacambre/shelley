@@ -30,9 +30,6 @@ function! shelley#OnTermOpen() abort
     if !exists("b:shelley")
       call shelley#InitBuffer(str2nr(expand('<abuf>')))
     endif
-    au BufEnter <buffer> if !get(g:shelley, "nocd", 0)
-          \| execute("cd " . b:shelley["path"])
-          \| endif
 endfunction
 
 function! shelley#GetBuf(pid) abort
