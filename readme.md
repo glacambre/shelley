@@ -1,4 +1,13 @@
-# Shelley - Better integrate your shell into neovim
+# DISCONTINUED
+
+I implemented [OSC autocommands in neovim](https://github.com/neovim/neovim/pull/22159).
+This means that you can now trivially [synchronize your terminal working
+directories](https://lacamb.re/blog/osc7_in_neovim_third_time.html#scripting-osc7-support)
+and create commands to [jump from prompt to prompt](https://github.com/neovim/neovim/issues/9209#issuecomment-1956018035).
+
+Thus, you should not use Shelley anymore. Thank you for your interest though!
+
+## Shelley - Better integrate your shell into neovim
 
 Shelley creates text objects to select prompts/command outputs and provides
 functions to navigate from prompt to prompt in terminal buffers.
@@ -21,7 +30,7 @@ vnoremap <expr> <Space>n shelley#NextPrompt()
   with `yao`.
 
 
-## Bugs
+### Bugs
 - I didn't test Shelley with zsh's RPROMPT feature but I don't think it'd go
   well. Same thing for multi-line $PS1. If there are bugs they probably could
   easily be fixed though.
